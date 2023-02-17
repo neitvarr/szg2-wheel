@@ -1,29 +1,11 @@
 class PresetManager {
     constructor() {
         this._presets = {
-            implants: [
-                new PresetImplantL1(true),
-                new PresetImplantL2(),
-                new PresetImplantL3(),
-                new PresetAll(),
-                new PresetNothing(),
-            ],
-            meetings: [
-                new PresetMeetEZ(),
-                new PresetMeetMedium(),
-                new PresetMeetSemiHard(true),
-                new PresetMeetHard(),
-                new PresetAll(),
-                new PresetNothing(),
-            ],
-            injuries: [
-                new PresetInjuries(true),
+            items: [
+                new PresetAll(true),
             ],
             streamers: [
                 new PresetAll(true),
-            ],
-            pvp: [
-                new PresetPvp(true)
             ],
         };
         this._nodes = {};

@@ -7,31 +7,12 @@ const
     isDebug = new URLSearchParams(document.location.search).get('debug'),
     editDialog = document.getElementById('dialog-edit'),
     editButton = document.getElementById('btn-edit'),
+    itemDescription = document.getElementById('description'),
     editConfirmButton = editDialog.getElementsByClassName('apply')[0],
     editOptions = editDialog.getElementsByClassName('options')[0],
     editPresets = editDialog.getElementsByClassName('presets')[0],
     editHeader = editDialog.getElementsByClassName('header')[0],
     presetManager = new PresetManager,
-    itemsPresets = [
-        new PresetGroup('Уровень 1'),
-        new PresetItems("Голова", subSets.items["Уровень 1"]["Голова"]),
-        new PresetItems("Тело", subSets.items["Уровень 1"]["Тело"]),
-        new PresetItems("Оружие", subSets.items["Уровень 1"]["Оружие"]),
-        new PresetItems("Ноги", subSets.items["Уровень 1"]["Ноги"]),
-        new PresetItems("Аксессуар", subSets.items["Уровень 1"]["Аксессуар"]),
-        new PresetGroup('Уровень 2'),
-        new PresetItems("Голова", subSets.items["Уровень 2"]["Голова"]),
-        new PresetItems("Тело", subSets.items["Уровень 2"]["Тело"]),
-        new PresetItems("Оружие", subSets.items["Уровень 2"]["Оружие"]),
-        new PresetItems("Ноги", subSets.items["Уровень 2"]["Ноги"]),
-        new PresetItems("Аксессуар", subSets.items["Уровень 2"]["Аксессуар"]),
-        new PresetGroup('Уровень 3'),
-        new PresetItems("Голова", subSets.items["Уровень 3"]["Голова"]),
-        new PresetItems("Тело", subSets.items["Уровень 3"]["Тело"]),
-        new PresetItems("Оружие", subSets.items["Уровень 3"]["Оружие"]),
-        new PresetItems("Ноги", subSets.items["Уровень 3"]["Ноги"]),
-        new PresetItems("Аксессуар", subSets.items["Уровень 3"]["Аксессуар"]),
-    ],
     optionClick = function (option, checked) {
         option = decodeURIComponent(option);
         editedDataSets[currentDataSet][option] = checked;
@@ -69,32 +50,8 @@ const
 
             return;
         }
-        else if (currentDataSet === 'items') {
-            if (this.getAttribute('data-show-edit-dialog')) {
-                editDialog.style.display = 'block';
-                p5Wheel.mouseDragEnable(false);
-            }
 
-            // if (itemsEditedDataSet) {
-            //     editedDataSets[currentDataSet] = itemsEditedDataSet;
-            // }
-            // else {
-                resetEditedDataSet(false);
-            // }
 
-            editHeader.textContent = this.nextElementSibling.innerText;
-            editPresets.innerHTML = '';
-            editOptions.innerHTML = '';
-            itemsPresets.forEach((preset, i) => {
-                editPresets.append(preset.getDOMNode(currentDataSet, i));
-                // preset.renderOptions(editedDataSets[currentDataSet], false);
-            });
-
-            // this.parentElement.append(editButton);
-            // editButton.className = '';
-
-            return;
-        }
 
         customDialog.style.display = 'none';
         p5Wheel.mouseDragEnable();
@@ -121,6 +78,15 @@ const
             p5Wheel.setData(dataSets[currentDataSet]);
             editButton.className = 'hide';
         }
+    },
+    showDescription = data => {
+        const description = data.description ? `<div class="body">${data.description}</div>` : '',
+            charges = data.charge ? `<div class="charges"><span>Заряды: </span>${data.charge}</div>` : '',
+            limit = data.limit ? `<div class="limit"><span>Лимит: </span>${data.limit}</div>` : '',
+            type = data.type ? `<div class="type"><span>Тип: </span>${data.type}</div>` : ''
+        ;
+
+        itemDescription.innerHTML = `${type}&nbsp;${charges}&nbsp;${limit}${description}`;
     }
 ;
 
@@ -144,24 +110,13 @@ editConfirmButton.addEventListener('click', function () {
     p5Wheel.mouseDragEnable();
 
     p5Wheel.setData(editedDataToArray());
-    //
-    // if (currentDataSet === 'items') {
-    //     itemsEditedDataSet = editedDataSets[currentDataSet];
-    // }
 });
 
 const p5Wheel = new p5(WheelSketch);
 
-const DMCAPlaylistSwitcher = new CheckboxStateable('with-dmca', 'video-with-dmca-protection', CheckboxStateable.MODE_MERGE);
-DMCAPlaylistSwitcher
-    .setValues(videosProtected, videosFree)
-    .onSwitch((value) => {
-        p5Wheel.setVideo(new Video(value));
-    })
-;
 
 p5Wheel.onAfterSetup = function () {
-    p5Wheel.setVideo(new Video(DMCAPlaylistSwitcher.value));
+    p5Wheel.setVideo(new Video(videosProtected.concat(videosFree), './'));
 };
 
 const image = document.querySelector('#item-image img');
@@ -171,7 +126,8 @@ currentUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/"));
 const p5ImagePlayer = new p5(GifPlayer);
 
 p5Wheel.onStartWheel = (durationSec) => {
-    if (currentDataSet === 'meetings' || currentDataSet === 'custom' || currentDataSet === 'pvp') {
+    itemDescription.style.visibility = 'hidden';
+    if (currentDataSet === 'custom') {
         p5ImagePlayer.onStartWheel(durationSec);
     }
 };
@@ -182,7 +138,7 @@ const
     onStopLastTextHandler = () => {
         lastSelectedText = selectedText;
         lastWheelTextEl.innerHTML = `Выпало в прошлый раз: «${lastSelectedText}»`;
-        document.getElementById('copy-last-selected').setAttribute('style', 'visibility: visible')
+        // document.getElementById('copy-last-selected').setAttribute('style', 'visibility: visible')
     },
     lastWheelBtnEl = document.getElementById('copy-last-selected'),
     lastWheelLinkHandler = function(e) {
@@ -201,12 +157,13 @@ const
 lastWheelBtnEl.addEventListener('click', lastWheelLinkHandler);
 
 p5Wheel.onStopWheel = () => {
+    itemDescription.style.visibility = 'visible';
     onStopLastTextHandler();
 };
 
 let deltas = [];
 setInterval(() => {
-    if (currentDataSet === 'meetings' || currentDataSet === 'custom' || currentDataSet === 'pvp') {
+    if (currentDataSet === 'custom') {
         p5ImagePlayer.setIsAnimated(true);
 
         let max = deltas.reduce(function(a, b) {
@@ -222,22 +179,18 @@ setInterval(() => {
 }, 300);
 
 p5Wheel.onMoveWheel = (delta) => {
-    if (currentDataSet === 'meetings' || currentDataSet === 'custom' || currentDataSet === 'pvp') {
+    if (currentDataSet === 'custom') {
         deltas.push(Math.abs(delta));
     }
 };
 
 p5Wheel.onSelectItem = function(data, selectedKey) {
-    selectedText = data[selectedKey] ? data[selectedKey].title || data[selectedKey] : '';
+    if (data[selectedKey]) {
+        selectedText = data[selectedKey].title || data[selectedKey];
+        showDescription(data[selectedKey]);
+    }
 
     let url = currentUrl + '/images/000.png';
-    // if (dataSets[currentDataSet]) {
-    //     const imageIndex = dataSets[currentDataSet].indexOf(data[selectedKey]);
-    //     if (imageIndex !== -1) {
-    //         url = getImageURI(imageIndex);
-    //     }
-    // }
-
     if (data[selectedKey] && typeof data[selectedKey].image === 'string') {
         url = currentUrl +'/images'+ data[selectedKey].image;
     }

@@ -27,13 +27,8 @@ function getRandomInt(min, max) {
 function getTemplate(linesCount = 150) {
     var result = '',
         imagePaths = [].concat(
-            getFiles('images/accessory'),
-            // getFiles('images/body'),
-            getFiles('images/gun'),
-            getFiles('images/hat'),
-            // getFiles('images/imp'),
-            // getFiles('images/leg'),
-            getFiles('images/mates'),
+            // getFiles('images/gun'),
+            // getFiles('images/hat'),
         ),
         len = imagePaths.length
     ;
