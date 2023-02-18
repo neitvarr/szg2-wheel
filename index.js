@@ -13,6 +13,20 @@ const
     editPresets = editDialog.getElementsByClassName('presets')[0],
     editHeader = editDialog.getElementsByClassName('header')[0],
     presetManager = new PresetManager,
+    itemsPresets = [
+        new PresetGroup('Red'),
+        new PresetItems("Slasher", subSets.games["Red"]["Slasher"]),
+        new PresetItems("Тело", subSets.games["Red"]["Тело"]),
+        new PresetItems("Оружие", subSets.games["Red"]["Оружие"]),
+        new PresetItems("Ноги", subSets.games["Red"]["Ноги"]),
+        new PresetItems("Аксессуар", subSets.games["Red"]["Аксессуар"]),
+        new PresetGroup('Уровень 2'),
+        new PresetItems("Голова", subSets.games["Уровень 2"]["Голова"]),
+        new PresetItems("Тело", subSets.games["Уровень 2"]["Тело"]),
+        new PresetItems("Оружие", subSets.games["Уровень 2"]["Оружие"]),
+        new PresetItems("Ноги", subSets.games["Уровень 2"]["Ноги"]),
+        new PresetItems("Аксессуар", subSets.games["Уровень 2"]["Аксессуар"]),
+    ],
     optionClick = function (option, checked) {
         option = decodeURIComponent(option);
         editedDataSets[currentDataSet][option] = checked;
@@ -50,8 +64,32 @@ const
 
             return;
         }
+        else if (currentDataSet === 'games') {
+            if (this.getAttribute('data-show-edit-dialog')) {
+                editDialog.style.display = 'block';
+                p5Wheel.mouseDragEnable(false);
+            }
 
+            // if (itemsEditedDataSet) {
+            //     editedDataSets[currentDataSet] = itemsEditedDataSet;
+            // }
+            // else {
+                resetEditedDataSet(false);
+            // }
 
+            editHeader.textContent = this.nextElementSibling.innerText;
+            editPresets.innerHTML = '';
+            editOptions.innerHTML = '';
+            itemsPresets.forEach((preset, i) => {
+                editPresets.append(preset.getDOMNode(currentDataSet, i));
+                // preset.renderOptions(editedDataSets[currentDataSet], false);
+            });
+
+            // this.parentElement.append(editButton);
+            // editButton.className = '';
+
+            return;
+        }
 
         customDialog.style.display = 'none';
         p5Wheel.mouseDragEnable();
@@ -206,7 +244,7 @@ const customDialog = document.getElementById('custom-list'),
     saveCustomData = function (stringData) {
         const url = new URL(window.location);
 
-        document.title = 'Колесо WhoPG2 (' + stringData.substring(0, 30) + '…)';
+        document.title = 'Колесо SZG 2 (' + stringData.substring(0, 30) + '…)';
 
         url.search = new URLSearchParams({custom: stringData});
         // console.log(url.toString());
